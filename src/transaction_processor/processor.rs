@@ -68,20 +68,23 @@ impl Proccessor {
         let transaction_state = self.transactions_map.get(&transaction.tx);
         match transaction_state {
             Some(state) => {
-                let amount = self.check_valid_amount(&transaction);
+                // let amount = self.check_valid_amount(&state);
+                let amount = if let Some(amount) = state.amount { amount } else { 0.0 };
                 self.accounts_map
                     .entry(transaction.client)
                     .and_modify(|client| {
-                        match state.transaction_type {
-                            TransactionType::Dispute => client.dispute(amount),
+                        match transaction.transaction_type {
+                            TransactionType::Dispute => {
+                                client.dispute(amount)
+                            },
                             TransactionType::Resolve => client.resolve(amount),
                             TransactionType::Chargeback => client.chargeback(amount),
-                            _ => println!("something is terribly wrong with your code....")
+                            _ => eprintln!("something is terribly wrong with your code....")
                         }
                     }
                 ).or_insert_with(|| ClientAccount::new(transaction.client));
             },
-            None => println!("transaction doesn't exist, maybe something went wrong....")
+            None => eprintln!("transaction doesn't exist, maybe something went wrong....")
         }
     }
 

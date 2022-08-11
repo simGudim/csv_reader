@@ -40,10 +40,10 @@ impl ClientAccount {
     // if a client does not have sufficient available funds the withdrawal should fail
     pub fn withdrawl(&mut self, amount: f64) {
         if self.available >= amount {
-            self.total =- amount;
-            self.available = self.total - amount;
+            self.total -= amount;
+            self.available -= amount;
         } else {
-            println!("insufficient funds for withdrawl");
+            eprintln!("insufficient funds for withdrawl");
         }
     }
 
@@ -55,7 +55,7 @@ impl ClientAccount {
             self.available -= amount;
             self.held += amount;
         } else {
-            println!("insufficient funds for dispute");
+            eprintln!("insufficient funds for dispute");
         }
     }
 
@@ -67,7 +67,7 @@ impl ClientAccount {
             self.held -= amount;
             self.available += amount;
         } else {
-            println!("something is incorrect with disputed transaction")
+            eprintln!("something is incorrect with disputed transaction")
         }
     }
 
@@ -79,7 +79,7 @@ impl ClientAccount {
             self.total -= amount;
             self.locked = true;
         } else {
-            println!("an error occured during the transaction");
+            eprintln!("an error occured during the transaction");
         }
     }
 }

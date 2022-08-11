@@ -13,6 +13,7 @@ use std::ffi::OsString;
 use std::fs::File;
 use std::env;
 use std::error::Error;
+use std::io;
 use std::process;
 
 // returns the positional argument sent to this process. 
@@ -42,11 +43,14 @@ fn process_transactions() -> Result<(), Box<dyn Error>> {
     }
 
     // output to stdout
-    let output_file_path = get_numbered_arg(2)?;
-    let mut wtr = csv::Writer::from_path(output_file_path)?;
+    let mut wtr = csv::Writer::from_writer(io::stdout());
+    processor.accounts_map
+        .iter()
+        .try_for_each(|(_, account)| wtr.serialize(account))?;
 
     wtr.flush()?;
     Ok(())
+
 }
 
 
