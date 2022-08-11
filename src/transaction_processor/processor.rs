@@ -59,8 +59,7 @@ impl Proccessor {
             .and_modify(|account| {
                 account.withdrawl(amount)
             }).or_insert_with(|| {
-                let mut account: ClientAccount = ClientAccount::new(transaction.client);
-                account.withdrawl(amount);
+                let account: ClientAccount = ClientAccount::new(transaction.client);
                 account
             });
     }
@@ -82,9 +81,7 @@ impl Proccessor {
                     }
                 ).or_insert_with(|| ClientAccount::new(transaction.client));
             },
-            None => {
-                println!("transaction doesn't exist, maybe something went wrong....")
-            }
+            None => println!("transaction doesn't exist, maybe something went wrong....")
         }
     }
 
@@ -98,10 +95,7 @@ impl Proccessor {
                 self.insert_transaction_history(&transaction);
                 self.insert_withdrawl_transaction_into_account(&transaction);
             },
-            _  => {
-                self.handle_dipsute_transactions(&transaction);
-
-            }
+            _  => self.handle_dipsute_transactions(&transaction)
         }
 
     }

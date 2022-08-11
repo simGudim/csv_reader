@@ -8,7 +8,7 @@ pub enum TransactionType {
     Withdrawal,
     Dispute,
     Resolve,
-    Chargeback,
+    Chargeback
 }
 
 #[derive(Debug, Deserialize)]
