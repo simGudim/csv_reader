@@ -5,7 +5,7 @@ fn round_output_record<S: Serializer>(amount: &f64, s: S) -> Result<S::Ok, S::Er
     s.serialize_f64((amount * 1000.0).round() / 1000.0)
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "PascalCase")]
 pub struct ClientAccount {
     pub client: u16,
