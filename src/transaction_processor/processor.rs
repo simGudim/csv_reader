@@ -101,23 +101,3 @@ impl Proccessor {
     }
 }
 
-
-
-
-#[cfg(test)]
-mod tests {
-    use super::{
-        Proccessor, 
-        Transaction, 
-        TransactionType, 
-        TransactionState
-    };
-
-
-    #[test]
-    #[ignore]
-    fn execute_test() {
-        assert_eq!(1+1 , 2);
-    }
-
-}

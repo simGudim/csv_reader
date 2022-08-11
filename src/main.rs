@@ -10,10 +10,6 @@ use transaction_processor::{
     transaction::Transaction,
     processor::Proccessor
 };
-use csv::{
-    ReaderBuilder, 
-    Trim
-};
 
 use std::ffi::OsString;
 use std::fs::File;
@@ -21,7 +17,6 @@ use std::env;
 use std::error::Error;
 use std::io;
 use std::process;
-use std::path::Path;
 
 // returns the positional argument sent to this process. 
 // If there are no positional arguments, then this returns an error.
@@ -38,8 +33,8 @@ fn process_transactions() -> Result<(), Box<dyn Error>> {
     let file = File::open(input_file_path)?;
 
     // intiliaze reader and allocate memory for the record
-    let mut rdr = ReaderBuilder::new()
-        .trim(Trim::All)
+    let mut rdr = csv::ReaderBuilder::new()
+        .trim(csv::Trim::All)
         .flexible(true)
         .from_reader(file);
     let mut raw_record = csv::ByteRecord::new();
@@ -66,11 +61,11 @@ fn process_transactions() -> Result<(), Box<dyn Error>> {
 
 fn main() {
     match process_transactions() {
-        Ok(count) => {
-            println!("{:?}", count);
+        Ok(_) => {
+            eprintln!("Processing Complete!!! Time to get Shwifty; raise your pos·te·ri·oririor?");
         }
         Err(err) => {
-            println!("{}", err);
+            eprintln!("Error: {}", err);
             process::exit(1);
         }
     }
