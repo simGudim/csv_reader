@@ -31,19 +31,25 @@ impl ClientAccount {
     }
 
     // increase the available and total funds of the client account
+    // ASSUMPTION: Locked account cannot deposit
     pub fn deposit(&mut self, amount: f64) {
-        self.total += amount;
-        self.available += amount
+        if !self.locked {
+            self.total += amount;
+            self.available += amount
+        } else {
+            eprintln!("account is locked");
+        }
     }
 
     // available: decrease the available and total funds of the client account,
     // if a client does not have sufficient available funds the withdrawal should fail
+    // ASSUMPTION: Locked account cannot withdrawl
     pub fn withdrawl(&mut self, amount: f64) {
-        if self.available >= amount {
+        if (self.available >= amount) & (!self.locked) {
             self.total -= amount;
             self.available -= amount;
         } else {
-            eprintln!("insufficient funds for withdrawl");
+            eprintln!("insufficient funds for withdrawl or account is locked");
         }
     }
 
@@ -74,10 +80,10 @@ impl ClientAccount {
     // held funds and total funds should decrease by the amount previously disputed. 
     // If a chargeback occurs the client's account should be immediately frozen.
     pub fn chargeback(&mut self, amount: f64) {
+        self.locked = true;
         if (self.held >= amount) & (self.total >= amount) {
             self.held -= amount;
             self.total -= amount;
-            self.locked = true;
         } else {
             eprintln!("an error occured during the transaction");
         }

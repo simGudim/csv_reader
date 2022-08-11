@@ -5,16 +5,23 @@ extern crate serde_derive;
 extern crate serde;
 extern crate csv;
 
+
 use transaction_processor::{
     transaction::Transaction,
     processor::Proccessor
 };
+use csv::{
+    ReaderBuilder, 
+    Trim
+};
+
 use std::ffi::OsString;
 use std::fs::File;
 use std::env;
 use std::error::Error;
 use std::io;
 use std::process;
+use std::path::Path;
 
 // returns the positional argument sent to this process. 
 // If there are no positional arguments, then this returns an error.
@@ -31,7 +38,10 @@ fn process_transactions() -> Result<(), Box<dyn Error>> {
     let file = File::open(input_file_path)?;
 
     // intiliaze reader and allocate memory for the record
-    let mut rdr = csv::Reader::from_reader(file);
+    let mut rdr = ReaderBuilder::new()
+        .trim(Trim::All)
+        .flexible(true)
+        .from_reader(file);
     let mut raw_record = csv::ByteRecord::new();
     let headers = rdr.byte_headers()?.clone();
 

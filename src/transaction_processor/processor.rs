@@ -31,16 +31,16 @@ impl Proccessor {
         );
     }
 
-    fn check_valid_amount(&self, transaction: &Transaction) -> f64 {
-        if let Some(amount) = transaction.amount {
-           amount
+    fn check_valid_amount(&self, amount: Option<f64>) -> f64 {
+        if let Some(value) = amount {
+           value
         } else {
             0.0
         }
     }
 
     fn insert_deposit_transaction_into_account(&mut self, transaction: &Transaction) {
-        let amount = self.check_valid_amount(&transaction);
+        let amount = self.check_valid_amount(transaction.amount);
         self.accounts_map
             .entry(transaction.client)
             .and_modify(|account| {
@@ -53,7 +53,7 @@ impl Proccessor {
     }
 
     fn insert_withdrawl_transaction_into_account(&mut self, transaction: &Transaction) {
-        let amount = self.check_valid_amount(&transaction);
+        let amount = self.check_valid_amount(transaction.amount);
         self.accounts_map
             .entry(transaction.client)
             .and_modify(|account| {
@@ -68,15 +68,12 @@ impl Proccessor {
         let transaction_state = self.transactions_map.get(&transaction.tx);
         match transaction_state {
             Some(state) => {
-                // let amount = self.check_valid_amount(&state);
-                let amount = if let Some(amount) = state.amount { amount } else { 0.0 };
+                let amount = self.check_valid_amount(state.amount);
                 self.accounts_map
                     .entry(transaction.client)
                     .and_modify(|client| {
                         match transaction.transaction_type {
-                            TransactionType::Dispute => {
-                                client.dispute(amount)
-                            },
+                            TransactionType::Dispute => client.dispute(amount),
                             TransactionType::Resolve => client.resolve(amount),
                             TransactionType::Chargeback => client.chargeback(amount),
                             _ => eprintln!("something is terribly wrong with your code....")
@@ -102,4 +99,25 @@ impl Proccessor {
         }
 
     }
+}
+
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        Proccessor, 
+        Transaction, 
+        TransactionType, 
+        TransactionState
+    };
+
+
+    #[test]
+    #[ignore]
+    fn execute_test() {
+        assert_eq!(1+1 , 2);
+    }
+
 }
