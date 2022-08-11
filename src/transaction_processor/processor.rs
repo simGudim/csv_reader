@@ -27,7 +27,8 @@ impl Proccessor {
                     transaction_type: transaction.transaction_type,
                     amount: transaction.amount
                 }
-            });
+            }
+        );
     }
 
     fn check_valid_amount(&self, transaction: &Transaction) -> f64 {
@@ -64,39 +65,27 @@ impl Proccessor {
             });
     }
 
-
-    fn handle_dipsute_transactions(&mut self, transaction_state: Option<&TransactionState>, transaction: &mut Transaction) {
-        // let mut transaction_state = self.accounts_map.get_mut(&transaction.client);
-        self.get_transaction_state(&transaction.tx);
-        let amount = self.check_valid_amount(&transaction);
+    fn handle_dipsute_transactions(&mut self, transaction: &Transaction) {
+        let transaction_state = self.transactions_map.get(&transaction.tx);
         match transaction_state {
             Some(state) => {
-                let client = self.get_client_account(&state.client);
-                if let Some(cl) = client {
-                    match transaction.transaction_type {
-                        TransactionType::Dispute => cl.dispute(amount),
-                        TransactionType::Withdrawal => cl.withdrawl(amount),
-                        TransactionType::Chargeback => cl.chargeback(amount),
-                        _ => {}
+                let amount = self.check_valid_amount(&transaction);
+                self.accounts_map
+                    .entry(transaction.client)
+                    .and_modify(|client| {
+                        match state.transaction_type {
+                            TransactionType::Dispute => client.dispute(amount),
+                            TransactionType::Resolve => client.resolve(amount),
+                            TransactionType::Chargeback => client.chargeback(amount),
+                            _ => println!("something is terribly wrong with your code....")
+                        }
                     }
-                } else {
-                    self.accounts_map
-                        .entry(transaction.client)
-                        .or_insert_with(|| ClientAccount::new(transaction.client));
-                }
+                ).or_insert_with(|| ClientAccount::new(transaction.client));
             },
             None => {
-                println!("transaction doesn't exist")
+                println!("transaction doesn't exist, maybe something went wrong....")
             }
         }
-    }
-
-    fn get_transaction_state(&self, tx: &u32) -> Option<&TransactionState> {
-        self.transactions_map.get(tx)  
-    }
-
-    fn get_client_account(&mut self, client: &u16) -> Option<&mut ClientAccount> {
-        self.accounts_map.get_mut(client)
     }
 
     pub fn process_transaction(&mut self, transaction: Transaction) {
@@ -110,8 +99,7 @@ impl Proccessor {
                 self.insert_withdrawl_transaction_into_account(&transaction);
             },
             _  => {
-                let transaction_state = self.get_transaction_state(&transaction.tx);
-                self.handle_dipsute_transactions(transaction_state, &mut transaction);
+                self.handle_dipsute_transactions(&transaction);
 
             }
         }
