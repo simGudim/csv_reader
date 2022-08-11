@@ -23,6 +23,7 @@ impl Proccessor {
             .entry(transaction.tx)
             .or_insert_with(|| {
                 TransactionState {
+                    client: transaction.client,
                     transaction_type: transaction.transaction_type,
                     amount: transaction.amount
                 }
@@ -74,7 +75,10 @@ impl Proccessor {
                 self.insert_withdrawl_transaction_into_account(&transaction);
             },
             TransactionType::Dispute => {
+                // if let Some(transaction_state) =  self.transactions_map.get(&transaction.tx) {
 
+                // }
+                
             },
             TransactionType::Resolve => {
 

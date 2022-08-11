@@ -1,26 +1,30 @@
 mod transaction_processor;
 
-extern crate csv;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate serde;
+extern crate csv;
 
 use transaction_processor::{
-    client_account::ClientAccount, 
     transaction::Transaction,
-    transaction_state::TransactionState,
     processor::Proccessor
 };
-use std::error::Error;
 use std::ffi::OsString;
 use std::fs::File;
 use std::env;
-use std::collections::HashMap;
+use std::error::Error;
 use std::process;
 
+// Returns the positional argument sent to this process. 
+// If there are no positional arguments, then this returns an error.
+fn get_numbered_arg(pos: usize) -> Result<OsString, Box<dyn Error>> {
+    match env::args_os().nth(pos) {
+        None => Err(From::from("expected argument, but got none")),
+        Some(file_path) => Ok(file_path),
+    }
+}
 
-
-fn run() -> Result<(), Box<dyn Error>> {
+fn process_transactions() -> Result<(), Box<dyn Error>> {
     // Get the input file path and output file
     let input_file_path = get_numbered_arg(1)?;
     let file = File::open(input_file_path)?;
@@ -45,17 +49,8 @@ fn run() -> Result<(), Box<dyn Error>> {
 }
 
 
-// Returns the positional argument sent to this process. 
-// If there are no positional arguments, then this returns an error.
-fn get_numbered_arg(pos: usize) -> Result<OsString, Box<dyn Error>> {
-    match env::args_os().nth(pos) {
-        None => Err(From::from("expected argument, but got none")),
-        Some(file_path) => Ok(file_path),
-    }
-}
-
 fn main() {
-    match run() {
+    match process_transactions() {
         Ok(count) => {
             println!("{:?}", count);
         }
