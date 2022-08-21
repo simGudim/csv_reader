@@ -1,7 +1,4 @@
-use serde::Deserialize;
-
-
-#[derive(Debug, Deserialize, PartialEq, Clone, Copy)]
+#[derive(Deserialize, PartialEq, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum TransactionType {
     Deposit,
@@ -10,8 +7,12 @@ pub enum TransactionType {
     Resolve,
     Chargeback
 }
+pub struct TransactionState {
+    pub client: u16,
+    pub amount: Option<f64>
+}
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct Transaction {
     #[serde(rename = "type")]

@@ -1,4 +1,4 @@
-use serde::{Serialize, Serializer};
+use serde::Serializer;
 
 
 fn round_output_record<S: Serializer>(amount: &f64, s: S) -> Result<S::Ok, S::Error> {
@@ -43,7 +43,7 @@ impl ClientAccount {
 
     // available: decrease the available and total funds of the client account,
     // if a client does not have sufficient available funds the withdrawal should fail
-    // ASSUMPTION: Locked account cannot withdrawl
+    // ASSUMPTION: Locked account cannot withdrawal
     pub fn withdrawl(&mut self, amount: f64) {
         if (self.available >= amount) & (!self.locked) {
             self.total -= amount;

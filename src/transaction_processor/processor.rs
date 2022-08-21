@@ -1,8 +1,12 @@
 use std::collections::HashMap;
 
 use super::client_account::ClientAccount;
-use super::transaction_state::{TransactionState};
-use super::transaction::{Transaction, TransactionType};
+use super::transaction::{
+    Transaction, 
+    TransactionType, 
+    TransactionState
+};
+
 
 pub struct Proccessor {
     pub transactions_map: HashMap<u32, TransactionState>,
@@ -18,19 +22,20 @@ impl Proccessor {
          }
     }
 
-    pub fn insert_transaction_history(&mut self, transaction: &Transaction) {
+    // inserts transaction history for deposits and withdrawls
+    fn insert_transaction_history(&mut self, transaction: &Transaction) {
         self.transactions_map
             .entry(transaction.tx)
             .or_insert_with(|| {
                 TransactionState {
                     client: transaction.client,
-                    transaction_type: transaction.transaction_type,
                     amount: transaction.amount
                 }
             }
         );
     }
 
+    // checks if it is a valid amount within the Option<f64>
     fn check_valid_amount(&self, amount: Option<f64>) -> f64 {
         if let Some(value) = amount {
            value
@@ -39,6 +44,8 @@ impl Proccessor {
         }
     }
 
+    // makes a depist transaction for a particlar account within the HashMap, 
+    // otherwise inserts a default account and makes a deposit into the account
     fn insert_deposit_transaction_into_account(&mut self, transaction: &Transaction) {
         let amount = self.check_valid_amount(transaction.amount);
         self.accounts_map
@@ -52,6 +59,8 @@ impl Proccessor {
             });
     }
 
+    // makes a depist transaction for a particlar account within the HashMap, 
+    // otherwise inserts a default account
     fn insert_withdrawl_transaction_into_account(&mut self, transaction: &Transaction) {
         let amount = self.check_valid_amount(transaction.amount);
         self.accounts_map
@@ -64,6 +73,7 @@ impl Proccessor {
             });
     }
 
+    // handle all the dispute transactions, such as dipiuste, resolve, chargeback
     fn handle_dipsute_transactions(&mut self, transaction: &Transaction) {
         let transaction_state = self.transactions_map.get(&transaction.tx);
         match transaction_state {
@@ -74,7 +84,11 @@ impl Proccessor {
                     .and_modify(|client| {
                         match transaction.transaction_type {
                             TransactionType::Dispute => client.dispute(amount),
-                            TransactionType::Resolve => client.resolve(amount),
+                            // ASSUMPTION: if a transaction is resolved, we no longer need it in memory
+                            TransactionType::Resolve => {
+                                client.resolve(amount);
+                                self.transactions_map.remove(&transaction.tx);
+                            },
                             TransactionType::Chargeback => client.chargeback(amount),
                             _ => eprintln!("something is terribly wrong with your code....")
                         }
@@ -85,6 +99,7 @@ impl Proccessor {
         }
     }
 
+    // main processor fucntions as an interface for the processing work 
     pub fn process_transaction(&mut self, transaction: Transaction) {
         match transaction.transaction_type {
             TransactionType::Deposit => {
@@ -97,7 +112,12 @@ impl Proccessor {
             },
             _  => self.handle_dipsute_transactions(&transaction)
         }
-
     }
-}
 
+
+    // only used in tests
+    pub fn get_client_account(&self, client: u16) -> &ClientAccount {
+        self.accounts_map.get(&client).unwrap()   
+    }
+
+}

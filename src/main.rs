@@ -10,6 +10,12 @@ use transaction_processor::{
     transaction::Transaction,
     processor::Proccessor
 };
+use csv::{
+    ByteRecord, 
+    ReaderBuilder, 
+    Trim,
+    Writer
+};
 
 use std::ffi::OsString;
 use std::fs::File;
@@ -28,16 +34,16 @@ fn get_numbered_arg(pos: usize) -> Result<OsString, Box<dyn Error>> {
 }
 
 fn process_transactions() -> Result<(), Box<dyn Error>> {
-    // get the input file path and output file
+    // get the input file path 
     let input_file_path = get_numbered_arg(1)?;
     let file = File::open(input_file_path)?;
 
     // intiliaze reader and allocate memory for the record
-    let mut rdr = csv::ReaderBuilder::new()
-        .trim(csv::Trim::All)
+    let mut rdr = ReaderBuilder::new()
+        .trim(Trim::All)
         .flexible(true)
         .from_reader(file);
-    let mut raw_record = csv::ByteRecord::new();
+    let mut raw_record = ByteRecord::new();
     let headers = rdr.byte_headers()?.clone();
 
     // process transaction
@@ -48,7 +54,7 @@ fn process_transactions() -> Result<(), Box<dyn Error>> {
     }
 
     // output to stdout
-    let mut wtr = csv::Writer::from_writer(io::stdout());
+    let mut wtr = Writer::from_writer(io::stdout());
     processor.accounts_map
         .iter()
         .try_for_each(|(_, account)| wtr.serialize(account))?;
@@ -62,7 +68,7 @@ fn process_transactions() -> Result<(), Box<dyn Error>> {
 fn main() {
     match process_transactions() {
         Ok(_) => {
-            eprintln!("Processing Complete!!! Time to get Shwifty; raise your pos·te·ri·oririor?");
+            eprintln!("Processing Complete!!! Time to get Shwifty!");
         }
         Err(err) => {
             eprintln!("Error: {}", err);

@@ -3,5 +3,4 @@ deposit,1,1,1.0
 deposit,1,3,5.0
 withdrawal,1,4,1.5
 dispute,1,1,
-chargeback,1,1,
 deposit,1,7,100
