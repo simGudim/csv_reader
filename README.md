@@ -6,7 +6,7 @@ This library takes an input csv file representing client transactions. The outpu
 ## Building the tool
 
 ```bash
-cargo build -- release
+cargo build --release
 ```
 
 ## Running the tool
