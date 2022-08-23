@@ -6,7 +6,7 @@ fn round_output_record<S: Serializer>(amount: &f64, s: S) -> Result<S::Ok, S::Er
 }
 
 #[derive(Debug, Serialize, Clone, Copy)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "lowercase")]
 pub struct ClientAccount {
     pub client: u16,
     #[serde(serialize_with = "round_output_record")]

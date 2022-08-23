@@ -13,7 +13,7 @@ pub struct TransactionState {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
+#[serde(rename_all = "lowercase")]
 pub struct Transaction {
     #[serde(rename = "type")]
     pub transaction_type: TransactionType,
